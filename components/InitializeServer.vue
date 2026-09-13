@@ -4,10 +4,11 @@
     <h1>Subsonic Server</h1>
 
     <div class="fields-container">
-      <span class="field-item" v-for="item in fields">
+      <span class="field-item" v-for="item in fields" :key="item.icon">
         <s-icon><ms-icon :name="item.icon"></ms-icon></s-icon>
         <s-text-field :label="item.label" :type="item.type" :showPasswordToggle="item.isPasswordToggleShowed"
-          :placeholder="item.placeholder" @input="(e: any) => item.value.value = e.target?.value ?? e.detail ?? e"></s-text-field>
+          :placeholder="item.placeholder"
+          @input="(e: any) => item.value.value = e.target?.value ?? e.detail ?? e"></s-text-field>
       </span>
     </div>
 
@@ -24,7 +25,7 @@ import 'ms-icon/person'
 import 'ms-icon/password'
 import 'ms-icon/check'
 
-import { getAuthParams, encrypt } from '@/utils/auth'
+import { authAndUseAPI, encrypt } from '@/utils/auth'
 import type { ServerInfo } from '@/utils/auth'
 import { router } from '@/entrypoints/popup/router'
 
@@ -76,7 +77,17 @@ const handleApply = async () => {
   window.localStorage.setItem("URL", serverInfo.URL.href)
 
   await encrypt(serverInfo)
-  await getAuthParams()
+  const addResult = await authAndUseAPI("ping")
+
+  if (addResult?.message === "authenticated") {
+    showAlert({
+      content: "The server has been added successfully",
+      type: "success"
+    })
+
+      router.replace('/home')
+  }
+
 }
 </script>
 

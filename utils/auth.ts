@@ -1,6 +1,5 @@
 import { md5 } from 'js-md5'
 import { showAlert } from '@/utils/floatAlert'
-import { router } from '@/entrypoints/popup/router'
 
 interface ServerInfo {
     URL: URL,
@@ -20,8 +19,8 @@ async function encrypt(serverInfo: ServerInfo) {
     window.localStorage.setItem("salt", salt)
 }
 
-async function getAuthParams() {
-    const requestURL = new URL("ping.view", window.localStorage.getItem("URL") as string)
+async function authAndUseAPI(apiName: string, ...args: [string, string | null][]) {
+    const requestURL = new URL(apiName, window.localStorage.getItem("URL") as string)
 
     const username = window.localStorage.getItem("username")
     const salt = window.localStorage.getItem("salt")
@@ -33,7 +32,8 @@ async function getAuthParams() {
         ['s', salt],
         ['v', "1.16.1"],
         ['c', "rippleplayer"],
-        ['f', "json"]
+        ['f', "json"],
+        ...args
     ];
 
     for (const [key, value] of params) {
@@ -46,24 +46,41 @@ async function getAuthParams() {
 
     try {
         const response = await fetch(requestURL as URL)
+        const contentType = response.headers.get("content-type") ?? ""
+        const isImageResponse = apiName === "getCoverArt" || contentType.startsWith("image/")
+
+        if (isImageResponse) {
+            const blobData = await response.blob()
+            return {
+                data: URL.createObjectURL(blobData)
+            }
+        }
+
         const result = await response.json()
         if (result['subsonic-response'].status == "failed") {
             showAlert({
                 content: result['subsonic-response'].error.message,
                 type: "error",
             })
-        } else if(result['subsonic-response'].status == "ok") {
-            showAlert({
-                content: "The Server has been added successfully",
-                type: "success"
-            })
-            router.replace('/home')
+
+            return {
+                message: "authentication failed"
+            }
+        } else if (result['subsonic-response'].status == "ok") {
+            return {
+                message: "authenticated",
+                data: result['subsonic-response']
+            }
         }
     } catch (error) {
         showAlert({
-            content: "Unkownn Error",
+            content: "Unknown Error",
             type: "error"
         })
+
+        return {
+            message: "unknown error"
+        }
     }
 
 }
@@ -71,5 +88,5 @@ async function getAuthParams() {
 export {
     type ServerInfo,
     encrypt,
-    getAuthParams
+    authAndUseAPI
 }
