@@ -7,23 +7,33 @@
 
 <script lang="ts" setup>
 import 'sober'
-import Topbar from '@/components/topbar.vue'
-import { useRoute } from 'vue-router';
-const route = useRoute()
+import Topbar from '@/components/Topbar.vue'
+import { useRoute, useRouter } from 'vue-router';
 import { createScheme } from 'sober/theme';
+
+const route = useRoute()
+const router = useRouter()
 
 const spage = useTemplateRef<HTMLElement | null>('spage')
 
 onMounted(async () => {
   const scheme = await createScheme("#960028")
-  
+
   if (spage.value) {
     scheme.apply(spage.value)
+  }
+
+  if (!window.localStorage.getItem("username") && route.path !== '/initialize') {
+    router.replace('/initialize')
+  }
+
+  if (window.localStorage.getItem("username") && route.path === '/initialize') {
+    router.replace('/home')
   }
 })
 
 const isTopbarShowed = computed(() => {
-  return route.name !== 'initialize'
+  return route.name !== "initialize"
 })
 </script>
 

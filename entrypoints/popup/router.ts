@@ -1,10 +1,16 @@
-import { createRouter, createWebHashHistory, stringifyQuery } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import { storage } from '#imports';
-import Home from '@/components/Home.vue'
-import List from '@/components/List.vue'
-import Initialize from '@/components/Initialize.vue'
+import Home from '@/components/HomePage.vue'
+import List from '@/components/ListPage.vue'
+import Initialize from '@/components/InitializeServer.vue'
+
+const getDefaultRoute = () => {
+    const hasUsername = Boolean(window.localStorage.getItem('username'))
+    return hasUsername ? '/home' : '/initialize'
+}
 
 const routes = [
+    { path: '/', redirect: getDefaultRoute },
     { path: '/home', component: Home, name: 'home' },
     { path: '/list', component: List, name: 'list' },
     { path: '/initialize', component: Initialize, name: 'initialize' }
@@ -16,10 +22,18 @@ export const router = createRouter({
     routes,
 });
 
-router.beforeEach(async (to, from) => {
-let isInitialized = await storage.getItem('local:isInitialized')
+router.beforeEach(async (to) => {
+    const isInitialized = Boolean(window.localStorage.getItem('username'))
 
-if (!isInitialized && to.path !== '/initialize') {
+    if (to.path === '/') {
+        return getDefaultRoute()
+    }
+
+    if (!isInitialized && to.path !== '/initialize') {
         return '/initialize'
+    }
+
+    if (isInitialized && to.path === '/initialize') {
+        return '/home'
     }
 })
