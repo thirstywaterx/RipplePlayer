@@ -40,7 +40,25 @@ function pruneExpiredCoverCache(cache: Record<string, CoverCacheEntry>) {
     return next
 }
 
-export function getCoverFromCache(id: string): string | null {
+async function loadCover(item: any) {
+    const cached = getCoverFromCache(item.id)
+    if (cached) {
+        item.cover = cached
+        return cached
+    }
+
+    const imageURL = await authAndUseAPI("getCoverArt", ["id", item.id])
+    const data = imageURL?.data
+
+    if (data) {
+        setCoverToCache(item.id, data)
+        item.cover = data
+    }
+
+    return data
+}
+
+function getCoverFromCache(id: string): string | null {
     const cache = pruneExpiredCoverCache(readCoverCache())
     const cached = cache[id]
 
@@ -48,11 +66,17 @@ export function getCoverFromCache(id: string): string | null {
     return cached.data
 }
 
-export function setCoverToCache(id: string, data: string, ttlMs = COVER_CACHE_TTL_MS) {
+function setCoverToCache(id: string, data: string, ttlMs = COVER_CACHE_TTL_MS) {
     const cache = readCoverCache()
     cache[id] = {
         data,
         expiresAt: Date.now() + ttlMs,
     }
     writeCoverCache(cache)
+}
+
+export {
+    loadCover,
+    getCoverFromCache,
+    setCoverToCache
 }

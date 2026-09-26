@@ -1,0 +1,34 @@
+#list-container {
+    position: relative;
+    width: 100vw;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    gap: 0px;
+    flex-direction: column;
+    padding-top: 30px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+#list-container::-webkit-scrollbar {
+    display: none;
+}
+
+#list-container s-card {
+    position: relative;
+    width: 100%;
+    height: 70px;
+    box-shadow: none;
+    flex-shrink: 0;
+    display: flex;
+    word-break: break-all;
+    background-color: transparent;
+    border-radius: 0px;
+    padding: 10px 20px 10px 20px;
+}
+
+#list-container s-card img {
+    border-radius: 4px;
+    margin-right: 10px;
+}

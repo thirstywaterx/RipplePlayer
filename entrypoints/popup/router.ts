@@ -1,8 +1,10 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { storage } from '#imports';
-import Home from '@/components/HomePage.vue'
-import List from '@/components/ListPage.vue'
-import Initialize from '@/components/InitializeServer.vue'
+
+import Home from '@/pages/HomePage.vue'
+import List from '@/pages/ListsPage.vue'
+import Initialize from '@/pages/InitializeServer.vue'
+import SongsList from '@/pages/SongsList.vue'
+import SongDisplay from '@/pages/SongDisplay.vue'
 
 const getDefaultRoute = () => {
     const hasUsername = Boolean(window.localStorage.getItem('username'))
@@ -13,11 +15,12 @@ const routes = [
     { path: '/', redirect: getDefaultRoute },
     { path: '/home', component: Home, name: 'home' },
     { path: '/list', component: List, name: 'list' },
-    { path: '/initialize', component: Initialize, name: 'initialize' }
+    { path: '/initialize', component: Initialize, name: 'initialize' },
+    { path: '/songslist/:id', component: SongsList, name: 'songslist' },
+    { path: '/song/:id', component: SongDisplay, name: 'songdisplay' }
 ];
 
 export const router = createRouter({
-    // 必须使用 Hash 模式，否则扩展内部页面跳转/刷新会找不到路径
     history: createWebHashHistory(),
     routes,
 });

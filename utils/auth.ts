@@ -1,5 +1,5 @@
 import { md5 } from 'js-md5'
-import { showAlert } from '@/utils/floatAlert'
+import { showAlert } from '@/utils/float-alert'
 
 interface ServerInfo {
     URL: URL,
@@ -8,7 +8,7 @@ interface ServerInfo {
 }
 
 // encrypt the password with the random salt by md5 and store it in the localstorage
-// it's safer than store the clear password due to the design pattern of subsonic
+// it's at least safer than store the clear password due to the design pattern of subsonic
 async function encrypt(serverInfo: ServerInfo) {
     const randomData: Uint8Array = window.crypto.getRandomValues(new Uint8Array(16));
     const salt = Array.from(randomData, byte => byte.toString(16).padStart(2, '0')).join('');
@@ -47,9 +47,12 @@ async function authAndUseAPI(apiName: string, ...args: [string, string | null][]
     try {
         const response = await fetch(requestURL as URL)
         const contentType = response.headers.get("content-type") ?? ""
-        const isImageResponse = apiName === "getCoverArt" || contentType.startsWith("image/")
+        const isBinaryResponse = apiName === "getCoverArt"
+            || apiName === "stream"
+            || contentType.startsWith("image/")
+            || contentType.startsWith("audio/")
 
-        if (isImageResponse) {
+        if (isBinaryResponse) {
             const blobData = await response.blob()
             return {
                 data: URL.createObjectURL(blobData)
