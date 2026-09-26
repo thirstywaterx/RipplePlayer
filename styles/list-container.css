@@ -6,7 +6,7 @@
     align-items: center;
     gap: 0px;
     flex-direction: column;
-    padding-top: 30px;
+    padding-top: 10px;
     scrollbar-width: none;
     -ms-overflow-style: none;
 }

@@ -44,6 +44,10 @@ async function authAndUseAPI(apiName: string, ...args: [string, string | null][]
     requestURL.searchParams.set("t", token as string)
     requestURL.searchParams.set("s", salt as string)
 
+    if (apiName === "stream") {
+        return { data: requestURL.href }
+    }
+
     try {
         const response = await fetch(requestURL as URL)
         const contentType = response.headers.get("content-type") ?? ""
