@@ -18,7 +18,7 @@
                     :step="1"
                     slidingmode="all"
                     :disabled="playStore.duration <= 0"
-                    aria-label="progress"
+                    aria-label="播放进度"
                     @input="previewSeek"
                     @change="commitSeek"
                 ></s-slider>
@@ -117,7 +117,7 @@ async function syncPlaybackState() {
         const state = await sendToPlayer('GET_STATE')
         applyPlaybackState(state ?? {})
     } catch {
-         console.error("something wrong")
+        // The offscreen document may not be available until playback is requested.
     }
 }
 
@@ -181,9 +181,19 @@ async function changePlayStatus() {
     updateSliderValue()
     isPlaying.value = true
     startProgressAnimation()
-    await sendToPlayer(hasStarted.value ? 'RESUME' : 'PLAY', {
+    const action = hasStarted.value ? 'RESUME' : 'PLAY'
+    const response = await sendToPlayer(action, {
         ...(hasStarted.value ? {} : { url: streamUrl.value, volume: 0.8 })
     })
+
+    //if the offscreen disconnects, resume it
+    if (action === 'RESUME' && response?.status === 'unavailable') {
+        await sendToPlayer('PLAY', {
+            url: streamUrl.value,
+            volume: 0.8,
+            position: playStore.currentTime
+        })
+    }
     hasStarted.value = true
 }
 </script>
@@ -206,8 +216,6 @@ h1 {
 
 #play-button {
     margin-top: 24px;
-    width: 60px;
-    height: 60px;
     border-radius: 1800px;
 }
 

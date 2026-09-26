@@ -27,11 +27,15 @@ function handlePlayerMessage(message: any, sender: any, sendResponse: (response?
         if (currentSound.value) {
           currentSound.value.unload();
         }
-        currentSound.value = new Howl({
+        const initialPosition = Math.max(0, Number(message.position) || 0);
+        const sound = new Howl({
           src: [message.url],
           html5: true,
           autoplay: false,
           volume: message.volume ?? 0.8,
+          onload: () => {
+            if (initialPosition > 0) sound.seek(initialPosition);
+          },
           onplay: () => {
             if (timerId) clearInterval(timerId);
             publishPlaybackProgress(true);
@@ -48,7 +52,8 @@ function handlePlayerMessage(message: any, sender: any, sendResponse: (response?
             console.error('load failed:', err);
           }
         });
-        currentSound.value.play();
+        currentSound.value = sound;
+        sound.play();
         sendResponse({ status: 'playing' });
         break;
       }
@@ -60,6 +65,8 @@ function handlePlayerMessage(message: any, sender: any, sendResponse: (response?
           timerId = null;
           publishPlaybackProgress(false);
           sendResponse({ status: 'paused' });
+        } else {
+          sendResponse({ status: 'unavailable' });
         }
         break;
 
@@ -67,6 +74,8 @@ function handlePlayerMessage(message: any, sender: any, sendResponse: (response?
         if (currentSound.value) {
           currentSound.value.play();
           sendResponse({ status: 'playing' });
+        } else {
+          sendResponse({ status: 'unavailable' });
         }
         break;
 
