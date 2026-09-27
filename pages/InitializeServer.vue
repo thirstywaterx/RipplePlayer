@@ -61,11 +61,14 @@ const fields = [
   }
 ]
 
-addEventListener('keydown', (e) => {
+const handleKeydown = (e: KeyboardEvent) => {
   if (e.key === 'Enter') {
     handleApply()
   }
-})
+}
+
+onMounted(() => window.addEventListener('keydown', handleKeydown))
+onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
 
 const handleApply = async () => {
   const serverInfo: ServerInfo = {

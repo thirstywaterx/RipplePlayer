@@ -1,39 +1,62 @@
 <template>
-  <div id="list-container">
-    <s-card clickable v-for="item in songs" :key="item.id" @click="gotoSongDisplay(item.id)">
-      <img :src="item.cover" alt="">
-      <p>{{ item.sortName }}</p>
-    </s-card>
+  <div id="songs-list-page">
+
+    <SubBar :title="playlistInfo?.name"></SubBar>
+
+    <div id="list-container">
+      <s-card clickable v-for="item in songs" :key="item.id" @click="gotoSongDisplay(item.id)">
+        <img :src="item.cover" alt="">
+        <p>{{ item.sortName }}</p>
+      </s-card>
+    </div>
   </div>
+
 </template>
 
 <script lang="ts" setup>
-import { authAndUseAPI } from '@/utils/auth'
-import { loadCover } from '@/utils/cover-cache'
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
+import { loadCovers } from '@/utils/get-cover'
+
+import 'ms-icon/keyboard_arrow_left'
 
 import '@/styles/list-container.css'
+import SubBar from '@/components/SubBar.vue'
 
 const router = useRouter()
 const route = useRoute()
 
 const listID = route.params.id
+const requestType = route.params.type
 
+const playlistInfo = ref<any>([])
 const songs = ref<any>([])
 
-onMounted(async () => {
-  const infoResponse = await authAndUseAPI("getPlaylist", ["id", listID as string])
+interface RequestInfo {
+  apiName: string
+  mainKey: string
+  subKey: string
+}
 
-  if (infoResponse?.data) {
-    songs.value = infoResponse.data.playlist.entry ?? []
+let requestInfo: RequestInfo = {
+  apiName: "getPlaylist",
+  mainKey: "playlist",
+  subKey: "entry"
+}
+
+if (requestType == "album") {
+  requestInfo = {
+    apiName: "getAlbum",
+    mainKey: "album",
+    subKey: "song"
   }
+}
 
-  await Promise.all(
-    songs.value.map(async (item: any) => {
-      await loadCover(item)
-    })
-  )
+
+onMounted(async () => {
+  const response = (await authAndUseAPI(requestInfo.apiName, ["id", listID as string]) as any)
+  playlistInfo.value = response?.data?.[requestInfo.mainKey]
+  songs.value = (await loadCovers(playlistInfo.value?.[requestInfo.subKey]))[0]
 })
 
 function gotoSongDisplay(id: String) {
@@ -41,4 +64,8 @@ function gotoSongDisplay(id: String) {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+#songs-list-page {
+  width: 100%;
+}
+</style>

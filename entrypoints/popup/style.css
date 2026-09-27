@@ -29,6 +29,20 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 600px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+s-page::-webkit-scrollbar {
+  display: none;
+}
+
+html,
+s-page {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 h1 {

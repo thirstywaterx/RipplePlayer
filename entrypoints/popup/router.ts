@@ -17,7 +17,7 @@ const routes = [
     { path: '/home', component: Home, name: 'home' },
     { path: '/list', component: List, name: 'list' },
     { path: '/initialize', component: Initialize, name: 'initialize' },
-    { path: '/songslist/:id', component: SongsList, name: 'songslist' },
+    { path: '/songslist/:type/:id', component: SongsList, name: 'songslist' },
     { path: '/song/:id', component: SongDisplay, name: 'songdisplay' },
     { path: '/search', component: SearchPage, name: 'search' }
 ];

@@ -18,7 +18,7 @@
                     :step="1"
                     slidingmode="all"
                     :disabled="playStore.duration <= 0"
-                    aria-label="播放进度"
+                    aria-label="progress slider"
                     @input="previewSeek"
                     @change="commitSeek"
                 ></s-slider>
@@ -56,6 +56,7 @@ const isPlaying = ref(false)
 let progressAnimation: Animation | null = null
 let isSeeking = false
 
+//get the current playback state from the offscreen player and apply it to the UI
 function applyPlaybackState(state: any) {
     const nextIsPlaying = Boolean(state.isPlaying)
     const playbackStarted = !isPlaying.value && nextIsPlaying
@@ -117,7 +118,7 @@ async function syncPlaybackState() {
         const state = await sendToPlayer('GET_STATE')
         applyPlaybackState(state ?? {})
     } catch {
-        // The offscreen document may not be available until playback is requested.
+       console.error("something wrong")
     }
 }
 
@@ -155,6 +156,7 @@ function previewSeek(event: Event) {
     setProgressVisual(playStore.duration * percent / 100)
 }
 
+// commit the adjustment
 async function commitSeek(event: Event) {
     const value = Number((event.currentTarget as HTMLElement & { value: number }).value)
     if (!Number.isFinite(value) || playStore.duration <= 0) return
@@ -168,6 +170,7 @@ async function commitSeek(event: Event) {
     await sendToPlayer('SEEK', { position })
 }
 
+// decide the actual aciton when pressed the play/pause button
 async function changePlayStatus() {
     if (isPlaying.value) {
         isPlaying.value = false
@@ -216,6 +219,8 @@ h1 {
 
 #play-button {
     margin-top: 24px;
+    width: 60px;
+    height: 60px;
     border-radius: 1800px;
 }
 

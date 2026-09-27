@@ -8,9 +8,8 @@
 </template>
 
 <script lang="ts" setup>
-import { authAndUseAPI } from '@/utils/auth'
-import { loadCover } from '@/utils/cover-cache'
 import { useRouter } from 'vue-router'
+import { getCover } from '@/utils/get-cover'
 
 import '@/styles/list-container.css'
 
@@ -19,21 +18,11 @@ const router = useRouter()
 const playlists = ref<any>([])
 
 onMounted(async () => {
-    const infoResponse = await authAndUseAPI("getPlaylists")
-
-    if (infoResponse?.data) {
-        playlists.value = infoResponse.data.playlists.playlist ?? []
-    }
-
-    await Promise.all(
-        playlists.value.map(async (item: any) => {
-            await loadCover(item)
-        })
-    )
+    playlists.value = await getCover("getPlaylists", ["playlists.playlist"])
 })
 
 function gotoSongsList(id: String) {
-    router.push("/songslist/" + id)
+    router.push("/songslist/list/" + id)
 }
 </script>
 
