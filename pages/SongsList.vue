@@ -4,7 +4,7 @@
     <SubBar :title="playlistInfo?.name"></SubBar>
 
     <div id="list-container">
-      <s-card clickable v-for="item in songs" :key="item.id" @click="gotoSongDisplay(item.id)">
+      <s-card clickable v-for="item in songs" :key="item.id" @click="storeInfoAndOpenTab(item.id)">
         <img :src="item.cover" alt="">
         <p>{{ item.sortName }}</p>
       </s-card>
@@ -17,12 +17,16 @@
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
 import { loadCovers } from '@/utils/get-cover'
+import { usePlayInfoStore } from '@/store/now-playing'
+import { useUIStatusStore } from '@/store/ui-display';
 
 import 'ms-icon/keyboard_arrow_left'
 
 import '@/styles/list-container.css'
 import SubBar from '@/components/SubBar.vue'
 
+const uiStatusStore = useUIStatusStore()
+const playInfoStore = usePlayInfoStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -59,8 +63,12 @@ onMounted(async () => {
   songs.value = (await loadCovers(playlistInfo.value?.[requestInfo.subKey]))[0]
 })
 
-function gotoSongDisplay(id: String) {
-  router.push("/song/" + id)
+async function storeInfoAndOpenTab(songID: String) {
+  for (let item of songs.value) {
+    if (item.id == songID)
+      playInfoStore.songInfo = item
+  }
+  uiStatusStore.isMusicTabShowed = true
 }
 </script>
 

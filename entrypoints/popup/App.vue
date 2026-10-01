@@ -1,13 +1,15 @@
 <template>
   <s-page ref="spage" :style="{ paddingTop: isTopbarShowed ? '50px' : '0' }">
-  <Topbar v-if="isTopbarShowed"></Topbar>
-  <RouterView></RouterView>
+    <Topbar></Topbar>
+    <MusicTab></MusicTab>
+    <RouterView></RouterView>
   </s-page>
 </template>
 
 <script lang="ts" setup>
 import 'sober'
 import Topbar from '@/components/Topbar.vue'
+import MusicTab from '@/components/MusicTab.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { createScheme } from 'sober/theme';
 
@@ -44,6 +46,5 @@ s-page {
   display: flex;
   justify-content: center;
   padding-top: 50px;
-
 }
 </style>

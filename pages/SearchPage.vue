@@ -1,8 +1,10 @@
 <template>
     <div id="page-container">
         <SearchField v-model="searchText" id="search-field" @keyup.enter="search()"></SearchField>
-        <div id="search-result">
 
+        <s-empty v-if="!isSearched">Nothing Here</s-empty>
+
+        <div id="search-result" v-if="isSearched">
             <div class="large-images-container">
                 <h2> Artists </h2>
                 <div class="img-display" @wheel.prevent="handleWheel">
@@ -29,6 +31,7 @@
 
         </div>
     </div>
+
 </template>
 
 <script setup lang="ts">
@@ -51,13 +54,15 @@ function handleArtistImageError(event: Event, item: any) {
     }
 }
 
+let isSearched = ref<boolean>(false)
+
 async function search() {
     const infoResponse = await authAndUseAPI("search2", ["query", searchText.value])
     const result = infoResponse?.data?.searchResult2 ?? {}
     searchResult.value = result
 
     await loadCovers(searchResult.value.album ?? [], searchResult.value.song ?? [])
-
+    isSearched.value = true
 }
 
 function handleWheel(e: WheelEvent) {

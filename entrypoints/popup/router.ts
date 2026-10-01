@@ -4,7 +4,6 @@ import Home from '@/pages/HomePage.vue'
 import List from '@/pages/ListsPage.vue'
 import Initialize from '@/pages/InitializeServer.vue'
 import SongsList from '@/pages/SongsList.vue'
-import SongDisplay from '@/pages/SongDisplay.vue'
 import SearchPage from '@/pages/SearchPage.vue'
 
 const getDefaultRoute = () => {
@@ -18,7 +17,6 @@ const routes = [
     { path: '/list', component: List, name: 'list' },
     { path: '/initialize', component: Initialize, name: 'initialize' },
     { path: '/songslist/:type/:id', component: SongsList, name: 'songslist' },
-    { path: '/song/:id', component: SongDisplay, name: 'songdisplay' },
     { path: '/search', component: SearchPage, name: 'search' }
 ];
 

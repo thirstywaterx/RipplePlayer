@@ -5,7 +5,7 @@ const currentSound = ref<Howl | null>(null);
 
 let timerId: number | null = null;
 
-function publishPlaybackProgress(isPlaying = Boolean(currentSound.value?.playing())) {
+function publishPlaybackProgress() {
   const sound = currentSound.value;
   if (!sound) return;
 
@@ -14,7 +14,6 @@ function publishPlaybackProgress(isPlaying = Boolean(currentSound.value?.playing
     action: 'PLAYBACK_PROGRESS',
     currentTime: sound.seek() as number,
     duration: sound.duration(),
-    isPlaying,
   }).catch(() => {});
 }
 
@@ -38,13 +37,13 @@ function handlePlayerMessage(message: any, sender: any, sendResponse: (response?
           },
           onplay: () => {
             if (timerId) clearInterval(timerId);
-            publishPlaybackProgress(true);
-            timerId = window.setInterval(() => publishPlaybackProgress(true), 250);
+            publishPlaybackProgress();
+            timerId = window.setInterval(() => publishPlaybackProgress(), 250);
           },
           onend: () => {
             if (timerId) clearInterval(timerId);
             timerId = null;
-            publishPlaybackProgress(false);
+            publishPlaybackProgress();
             console.log('play ended');
             browser.runtime.sendMessage({ action: 'MUSIC_ENDED' });
           },
@@ -63,7 +62,7 @@ function handlePlayerMessage(message: any, sender: any, sendResponse: (response?
           currentSound.value.pause();
           if (timerId) clearInterval(timerId);
           timerId = null;
-          publishPlaybackProgress(false);
+          publishPlaybackProgress();
           sendResponse({ status: 'paused' });
         } else {
           sendResponse({ status: 'unavailable' });
@@ -79,16 +78,6 @@ function handlePlayerMessage(message: any, sender: any, sendResponse: (response?
         }
         break;
 
-      case 'GET_STATE': {
-        const sound = currentSound.value;
-        sendResponse({
-          currentTime: sound ? sound.seek() as number : 0,
-          duration: sound?.duration() ?? 0,
-          isPlaying: Boolean(sound?.playing()),
-        });
-        break;
-      }
-
       case 'SEEK': {
         const sound = currentSound.value;
         if (!sound) {
@@ -98,7 +87,7 @@ function handlePlayerMessage(message: any, sender: any, sendResponse: (response?
 
         const position = Math.min(sound.duration(), Math.max(0, Number(message.position) || 0));
         sound.seek(position);
-        publishPlaybackProgress(Boolean(sound.playing()));
+        publishPlaybackProgress();
         sendResponse({ status: 'seeked', currentTime: position });
         break;
       }

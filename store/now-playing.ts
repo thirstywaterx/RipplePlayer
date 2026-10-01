@@ -1,11 +1,23 @@
 import { defineStore } from "pinia";
 
+interface SongInfo {
+    [key: string]: unknown
+    title?: string
+    artist?: string
+}
+
 export const usePlayInfoStore = defineStore('', () => {
     let currentTime = ref<number>(0)
     let duration = ref<number>(0)
+    let isPlaying = ref<boolean>(false)
+
+    let songInfo = ref<SongInfo>({}
+    ) 
 
     return {
         currentTime,
-        duration
+        duration,
+        isPlaying,
+        songInfo
     }
 });
