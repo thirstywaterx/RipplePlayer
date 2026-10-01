@@ -62,11 +62,14 @@ import { sendToPlayer } from '@/utils/playback';
 import { usePlayInfoStore } from '@/store/now-playing';
 import { useUIStatusStore } from '@/store/ui-display';
 
+import { updateSliderValue } from '@/utils/player/cal-percent';
+
 const uiStatusStore = useUIStatusStore()
 const playInfoStore = usePlayInfoStore()
 
 const progressValue = ref<number>(0)
 let isSeeking = false
+let playRequestId = 0
 
 import 'ms-icon/pause'
 import 'ms-icon/play_arrow'
@@ -83,15 +86,35 @@ function applyPlaybackState(state: any) {
     playInfoStore.currentTime = state.currentTime ?? 0
     playInfoStore.duration = state.duration ?? 0
 
-    if (!isSeeking) updateSliderValue()
+    if (!isSeeking) {
+        progressValue.value = updateSliderValue()
+    }
 }
 
 async function playMusic() {
-    const response = await authAndUseAPI("stream", ["id", String(playInfoStore.songInfo.id)])
+    const songId = playInfoStore.songInfo.id
+    const requestId = ++playRequestId
+    const position = playInfoStore.currentTime
+    const response = await authAndUseAPI("stream", ["id", String(songId)])
 
-    await sendToPlayer('PLAY', { url: response?.data })
+    if (requestId !== playRequestId || playInfoStore.songInfo.id !== songId) return
+
+    await sendToPlayer('PLAY', {
+        url: response?.data,
+        position,
+    })
     playInfoStore.isPlaying = true
 }
+
+watch(() => playInfoStore.songInfo.id, (songId) => {
+    if (songId == null) return
+
+    playInfoStore.currentTime = 0
+    playInfoStore.duration = 0
+    progressValue.value = 0
+    isSeeking = false
+    void playMusic()
+}, { immediate: true })
 
 async function changePlayStatus() {
     if (playInfoStore.isPlaying) {
@@ -101,7 +124,11 @@ async function changePlayStatus() {
     }
 
     if (playInfoStore.duration > 0) {
-        await sendToPlayer('RESUME')
+        const response = await sendToPlayer('RESUME')
+        if (response?.status === 'unavailable') {
+            await playMusic()
+            return
+        }
         playInfoStore.isPlaying = true
         return
     }
@@ -121,14 +148,6 @@ async function changeProgress() {
     isSeeking = false
     await sendToPlayer('SEEK', { position })
 }
-
-function updateSliderValue() {
-    progressValue.value = playInfoStore.duration > 0
-        ? Math.min(100, Math.max(0, playInfoStore.currentTime / playInfoStore.duration * 100))
-        : 0
-}
-
-
 
 function handlePlaybackMessage(message: any) {
     if (message.target !== 'popup-player' || message.action !== 'PLAYBACK_PROGRESS') return

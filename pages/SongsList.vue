@@ -4,7 +4,7 @@
     <SubBar :title="playlistInfo?.name"></SubBar>
 
     <div id="list-container">
-      <s-card clickable v-for="item in songs" :key="item.id" @click="storeInfoAndOpenTab(item.id)">
+      <s-card clickable v-for="item in songs" :key="item.id" @click="storeInfoAndOpenTab(item.id,songs)">
         <img :src="item.cover" alt="">
         <p>{{ item.sortName }}</p>
       </s-card>
@@ -16,9 +16,10 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
-import { loadCovers } from '@/utils/get-cover'
+import { loadCovers } from '@/utils/cover/get-cover'
 import { usePlayInfoStore } from '@/store/now-playing'
 import { useUIStatusStore } from '@/store/ui-display';
+import { storeInfoAndOpenTab } from '@/utils/player/open-tab';
 
 import 'ms-icon/keyboard_arrow_left'
 
@@ -62,14 +63,6 @@ onMounted(async () => {
   playlistInfo.value = response?.data?.[requestInfo.mainKey]
   songs.value = (await loadCovers(playlistInfo.value?.[requestInfo.subKey]))[0]
 })
-
-async function storeInfoAndOpenTab(songID: String) {
-  for (let item of songs.value) {
-    if (item.id == songID)
-      playInfoStore.songInfo = item
-  }
-  uiStatusStore.isMusicTabShowed = true
-}
 </script>
 
 <style scoped>

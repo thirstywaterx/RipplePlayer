@@ -1,5 +1,5 @@
 import { authAndUseAPI } from '@/utils/auth'
-import { loadCover } from '@/utils/cover-cache'
+import { loadCover } from '@/utils/cover/cover-cache'
 
 function getNestedValue(obj: any, path: string) {
     if (!obj || !path) return undefined;

@@ -23,7 +23,7 @@
             </div>
 
             <div id="list-container">
-                <s-card clickable v-for="item in searchResult.song" :key="item.id" @click="gotoSongDisplay(item.id)">
+                <s-card clickable v-for="item in searchResult.song" :key="item.id" @click="storeInfoAndOpenTab(item.id,searchResult.song)">
                     <img :src="item.cover" alt="">
                     <p>{{ item.title }}</p>
                 </s-card>
@@ -38,7 +38,8 @@
 import SearchField from '@/components/SearchField.vue';
 import { authAndUseAPI } from '#imports';
 import { useRouter } from 'vue-router';
-import { loadCovers } from '@/utils/get-cover'
+import { loadCovers } from '@/utils/cover/get-cover'
+import { storeInfoAndOpenTab } from '@/utils/player/open-tab';
 
 import '@/styles/list-container.css'
 
@@ -77,11 +78,6 @@ type routeType = "artist" | "album" | "song"
 function handleRoute(type: routeType, id: string) {
     router.push("/songslist/" + type + "/" + id)
 }
-
-function gotoSongDisplay(id: String) {
-    router.push("/song/" + id)
-}
-
 </script>
 
 <style scoped>

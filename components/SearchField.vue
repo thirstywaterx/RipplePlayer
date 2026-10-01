@@ -9,11 +9,12 @@ const model = defineModel()
 <style scoped>
 input {
     width: 100%;
-    height: 40px;
+    height: 45px;
     border: none;
     background-color:transparent;
     border-bottom: 2px var(--s-color-light-on-surface-variant) solid;
-    padding-left: 30px;
+    padding-left: 20px;
+    font-size: 15px;
 }
 
 input:focus{

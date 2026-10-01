@@ -105,6 +105,10 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  z-index: 101;
+  background-color: var(--s-color-surface-container-lowest);
+  width: 100vw;
+  height: 100vh;
 }
 
 .fields-container {

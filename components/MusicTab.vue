@@ -1,7 +1,7 @@
 <template>
         <div id="overall" :class="{'all-slide-in': uiStatusStore.isMusicTabSlideIn }" v-if="uiStatusStore.isMusicTabShowed">
             <s-card id="tab-container" @click="handleClick()">
-                <s-progress :value="60"></s-progress>
+                <s-progress :value="progressValue"></s-progress>
                 <img :src="String(playInfoStore.songInfo.cover)" alt="" id="cover">
                 <div id="text-info">
                     <h4>{{ playInfoStore.songInfo.title }}</h4>
@@ -18,11 +18,14 @@
 import SongDisplay from '@/pages/SongDisplay.vue';
 import { useUIStatusStore } from '@/store/ui-display';
 import { usePlayInfoStore } from '@/store/now-playing';
+import { updateSliderValue } from '@/utils/player/cal-percent';
 
 const uiStatusStore = useUIStatusStore()
 const playInfoStore = usePlayInfoStore()
 
-let isSlideIn = ref<boolean>(false)
+const progressValue = computed(() => {
+  return updateSliderValue();
+});
 
 function handleClick(){
 uiStatusStore.isMusicTabSlideIn = !uiStatusStore.isMusicTabSlideIn

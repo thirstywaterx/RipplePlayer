@@ -9,7 +9,7 @@
 
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
-import { getCover } from '@/utils/get-cover'
+import { getCover } from '@/utils/cover/get-cover'
 
 import '@/styles/list-container.css'
 

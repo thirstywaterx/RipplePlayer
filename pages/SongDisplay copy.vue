@@ -60,7 +60,7 @@
 
 <script lang="ts" setup>
 import { authAndUseAPI } from '@/utils/auth'
-import { loadCover } from '@/utils/cover-cache'
+import { loadCover } from '@/utils/cover/cover-cache'
 import { useRoute } from 'vue-router'
 import { sendToPlayer } from '@/utils/playback';
 
