@@ -14,6 +14,7 @@ function publishPlaybackProgress() {
     action: 'PLAYBACK_PROGRESS',
     currentTime: sound.seek() as number,
     duration: sound.duration(),
+    isPlaying: sound.playing(),
   }).catch(() => {});
 }
 
@@ -88,7 +89,12 @@ function handlePlayerMessage(message: any, sender: any, sendResponse: (response?
         const position = Math.min(sound.duration(), Math.max(0, Number(message.position) || 0));
         sound.seek(position);
         publishPlaybackProgress();
-        sendResponse({ status: 'seeked', currentTime: position });
+        sendResponse({
+          status: 'seeked',
+          currentTime: position,
+          duration: sound.duration(),
+          isPlaying: sound.playing(),
+        });
         break;
       }
 

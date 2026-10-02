@@ -4,7 +4,7 @@
     <SubBar :title="playlistInfo?.name"></SubBar>
 
     <div id="list-container">
-      <s-card clickable v-for="item in songs" :key="item.id" @click="storeInfoAndOpenTab(item.id,songs)">
+      <s-card clickable v-for="item in songs" :key="item.id" @click="storeInfoAndOpenTab(item.id, songs)">
         <img :src="item.cover" alt="">
         <p>{{ item.sortName }}</p>
       </s-card>
@@ -14,11 +14,11 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
 import { loadCovers } from '@/utils/cover/get-cover'
-import { usePlayInfoStore } from '@/store/now-playing'
-import { useUIStatusStore } from '@/store/ui-display';
+
+import { usePlayQueueStore } from '@/store/play-queue';
+
 import { storeInfoAndOpenTab } from '@/utils/player/open-tab';
 
 import 'ms-icon/keyboard_arrow_left'
@@ -26,9 +26,7 @@ import 'ms-icon/keyboard_arrow_left'
 import '@/styles/list-container.css'
 import SubBar from '@/components/SubBar.vue'
 
-const uiStatusStore = useUIStatusStore()
-const playInfoStore = usePlayInfoStore()
-const router = useRouter()
+const playQueueStore = usePlayQueueStore()
 const route = useRoute()
 
 const listID = route.params.id
@@ -62,11 +60,14 @@ onMounted(async () => {
   const response = (await authAndUseAPI(requestInfo.apiName, ["id", listID as string]) as any)
   playlistInfo.value = response?.data?.[requestInfo.mainKey]
   songs.value = (await loadCovers(playlistInfo.value?.[requestInfo.subKey]))[0]
+
+  playQueueStore.beforeLevel = "listOrAlbum"
 })
 </script>
 
 <style scoped>
 #songs-list-page {
   width: 100%;
+  padding-bottom: 80px;
 }
 </style>

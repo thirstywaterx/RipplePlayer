@@ -6,13 +6,12 @@ interface SongInfo {
     artist?: string
 }
 
-export const usePlayInfoStore = defineStore('', () => {
+export const usePlayInfoStore = defineStore('playInfoStore', () => {
     let currentTime = ref<number>(0)
     let duration = ref<number>(0)
     let isPlaying = ref<boolean>(false)
 
-    let songInfo = ref<SongInfo>({}
-    ) 
+    let songInfo = ref<SongInfo>({})
 
     return {
         currentTime,
@@ -20,4 +19,8 @@ export const usePlayInfoStore = defineStore('', () => {
         isPlaying,
         songInfo
     }
+}, {
+    persist: {
+        pick: ['songInfo', 'currentTime', 'duration'],
+    },
 });

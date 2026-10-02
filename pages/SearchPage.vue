@@ -23,7 +23,8 @@
             </div>
 
             <div id="list-container">
-                <s-card clickable v-for="item in searchResult.song" :key="item.id" @click="storeInfoAndOpenTab(item.id,searchResult.song)">
+                <s-card clickable v-for="item in searchResult.song" :key="item.id"
+                    @click="storeInfoAndOpenTab(item.id, searchResult.song)">
                     <img :src="item.cover" alt="">
                     <p>{{ item.title }}</p>
                 </s-card>
@@ -41,9 +42,16 @@ import { useRouter } from 'vue-router';
 import { loadCovers } from '@/utils/cover/get-cover'
 import { storeInfoAndOpenTab } from '@/utils/player/open-tab';
 
+import { usePlayQueueStore } from '@/store/play-queue';
+
 import '@/styles/list-container.css'
 
+const playQueueStore = usePlayQueueStore()
 const router = useRouter()
+
+onMounted(() => {
+    playQueueStore.beforeLevel = "empty"
+})
 
 let searchText = ref<string>("")
 const searchResult = ref<any>([])
@@ -76,6 +84,10 @@ function handleWheel(e: WheelEvent) {
 type routeType = "artist" | "album" | "song"
 
 function handleRoute(type: routeType, id: string) {
+    if (type === "artist") {
+        router.push("/artist/" + id)
+        return
+    }
     router.push("/songslist/" + type + "/" + id)
 }
 </script>
@@ -90,6 +102,7 @@ function handleRoute(type: routeType, id: string) {
     align-items: stretch;
     box-sizing: border-box;
     overflow-x: hidden;
+    padding-bottom: 80px;
 }
 
 #search-field {

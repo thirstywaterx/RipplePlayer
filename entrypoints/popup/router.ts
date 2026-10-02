@@ -5,6 +5,7 @@ import List from '@/pages/ListsPage.vue'
 import Initialize from '@/pages/InitializeServer.vue'
 import SongsList from '@/pages/SongsList.vue'
 import SearchPage from '@/pages/SearchPage.vue'
+import ArtistDetail from '@/pages/ArtistDetail.vue'
 
 const getDefaultRoute = () => {
     const hasUsername = Boolean(window.localStorage.getItem('username'))
@@ -17,7 +18,8 @@ const routes = [
     { path: '/list', component: List, name: 'list' },
     { path: '/initialize', component: Initialize, name: 'initialize' },
     { path: '/songslist/:type/:id', component: SongsList, name: 'songslist' },
-    { path: '/search', component: SearchPage, name: 'search' }
+    { path: '/search', component: SearchPage, name: 'search' },
+    { path: '/artist/:id', component: ArtistDetail, name: 'artist' },
 ];
 
 export const router = createRouter({

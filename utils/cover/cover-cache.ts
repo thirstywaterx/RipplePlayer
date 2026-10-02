@@ -62,11 +62,13 @@ function getCoverFromCache(id: string): string | null {
     const cache = pruneExpiredCoverCache(readCoverCache())
     const cached = cache[id]
 
-    if (!cached) return null
+    if (!cached || cached.data.startsWith('blob:')) return null
     return cached.data
 }
 
 function setCoverToCache(id: string, data: string, ttlMs = COVER_CACHE_TTL_MS) {
+    if (data.startsWith('blob:')) return
+
     const cache = readCoverCache()
     cache[id] = {
         data,

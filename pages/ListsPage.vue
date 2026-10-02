@@ -26,4 +26,8 @@ function gotoSongsList(id: String) {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+#list-container {
+      padding-bottom: 80px;
+}
+</style>

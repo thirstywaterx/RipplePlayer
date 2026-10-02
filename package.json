@@ -1,5 +1,5 @@
 {
-  "name": "wxt-vue-starter",
+  "name": "ripple-player",
   "description": "manifest.json description",
   "private": true,
   "version": "0.0.0",
@@ -19,9 +19,11 @@
     "js-md5": "^0.9.2",
     "ms-icon": "^1.0.0",
     "pinia": "^4.0.3",
+    "pinia-plugin-persistedstate": "^4.7.1",
     "sober": "^2.0.0-alpha.20",
     "vue": "^3.5.29",
-    "vue-router": "^5.3.1"
+    "vue-router": "^5.3.1",
+    "vue3-marquee": "^4.2.2"
   },
   "devDependencies": {
     "@types/howler": "^2.2.13",

@@ -1,34 +1,43 @@
 <template>
-        <div id="overall" :class="{'all-slide-in': uiStatusStore.isMusicTabSlideIn }" v-if="uiStatusStore.isMusicTabShowed">
-            <s-card id="tab-container" @click="handleClick()">
-                <s-progress :value="progressValue"></s-progress>
-                <img :src="String(playInfoStore.songInfo.cover)" alt="" id="cover">
-                <div id="text-info">
+    <div id="overall" :class="{ 'all-slide-in': uiStatusStore.isMusicTabSlideIn }"
+        v-if="uiStatusStore.isMusicTabShowed">
+        <s-card id="tab-container" @click="handleClick()">
+            <s-progress :value="progressValue"></s-progress>
+            <img :src="String(playInfoStore.songInfo.cover)" alt="" id="cover">
+            <div id="text-info">
+                <Vue3Marquee id="marquee" :key="playInfoStore.songInfo.title"
+                    :class="{ 'is-overflowing': isMarqueeOverflowing }" :animate-on-overflow-only="true" :clone="true"
+                    :pause-on-hover="true" @on-overflow-detected="isMarqueeOverflowing = true"
+                    @on-overflow-cleared="isMarqueeOverflowing = false">
                     <h4>{{ playInfoStore.songInfo.title }}</h4>
-                    <p>{{ playInfoStore.songInfo.artist }}</p>
-                </div>
-            </s-card>
+                </Vue3Marquee>
+                <p>{{ playInfoStore.songInfo.artist }}</p>
+            </div>
+        </s-card>
 
-            <SongDisplay id="song-display"></SongDisplay>
-        </div>
+        <SongDisplay id="song-display"></SongDisplay>
+    </div>
 
 </template>
 
 <script setup lang="ts">
 import SongDisplay from '@/pages/SongDisplay.vue';
-import { useUIStatusStore } from '@/store/ui-display';
+import { useUIStatusStore } from '@/store/ui-status';
 import { usePlayInfoStore } from '@/store/now-playing';
-import { updateSliderValue } from '@/utils/player/cal-percent';
+import { updateSliderValue } from '@/utils/cal-percent';
 
 const uiStatusStore = useUIStatusStore()
 const playInfoStore = usePlayInfoStore()
+const isMarqueeOverflowing = ref<boolean>(false)
+
+let playRequestId = 0
 
 const progressValue = computed(() => {
-  return updateSliderValue();
+    return updateSliderValue();
 });
 
-function handleClick(){
-uiStatusStore.isMusicTabSlideIn = !uiStatusStore.isMusicTabSlideIn
+function handleClick() {
+    uiStatusStore.isMusicTabSlideIn = !uiStatusStore.isMusicTabSlideIn
 }
 </script>
 
@@ -87,5 +96,11 @@ p {
 
 #overall.all-slide-in {
     transform: translateY(-100vh);
+}
+
+#marquee {
+    width: 60vw;
+    overflow-y: hidden;
+    padding-left: 1px;
 }
 </style>
