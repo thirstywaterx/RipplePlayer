@@ -5,13 +5,14 @@
             <s-progress :value="progressValue"></s-progress>
             <img :src="String(playInfoStore.songInfo.cover)" alt="" id="cover">
             <div id="text-info">
-                <Vue3Marquee id="marquee" :key="playInfoStore.songInfo.title"
-                    :class="{ 'is-overflowing': isMarqueeOverflowing }" :animate-on-overflow-only="true" :clone="true"
-                    :pause-on-hover="true" @on-overflow-detected="isMarqueeOverflowing = true"
-                    @on-overflow-cleared="isMarqueeOverflowing = false">
+                <OverflowMarquee id="marquee" :key="playInfoStore.songInfo.title"
+                    :animate-on-overflow-only="true" :clone="true" :pause-on-hover="true">
                     <h4>{{ playInfoStore.songInfo.title }}</h4>
-                </Vue3Marquee>
-                <p>{{ playInfoStore.songInfo.artist }}</p>
+                </OverflowMarquee>
+                <OverflowMarquee id="marquee" :key="playInfoStore.songInfo.title"
+                    :animate-on-overflow-only="true" :clone="true" :pause-on-hover="true">
+                    <p style="color: var(--s-color-outline);">{{ playInfoStore.songInfo.artist }}</p>
+                </OverflowMarquee>
             </div>
         </s-card>
 
@@ -25,11 +26,10 @@ import SongDisplay from '@/pages/SongDisplay.vue';
 import { useUIStatusStore } from '@/store/ui-status';
 import { usePlayInfoStore } from '@/store/now-playing';
 import { updateSliderValue } from '@/utils/cal-percent';
+import OverflowMarquee from '@/components/OverflowMarquee.vue'
 
 const uiStatusStore = useUIStatusStore()
 const playInfoStore = usePlayInfoStore()
-const isMarqueeOverflowing = ref<boolean>(false)
-
 let playRequestId = 0
 
 const progressValue = computed(() => {

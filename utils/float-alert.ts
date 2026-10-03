@@ -1,5 +1,5 @@
 import { createVNode, render } from 'vue'
-import AlertDialog from '@/components/Encapsulation/FloatAlert.vue'
+import AlertDialog from '@/components/encapsulation/FloatAlert.vue'
 
 interface DialogOptions {
   onClose?: () => void;

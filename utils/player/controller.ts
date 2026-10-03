@@ -24,7 +24,7 @@ function getNowIndex() {
     return playQueueStore.songsQueue.findIndex(item => item.id === nowID);
 }
 
-function shuffleSongIds(songIds: string[]) {
+export function shuffleSongIds(songIds: string[]) {
     for (let index = songIds.length - 1; index > 0; index--) {
         const randomIndex = Math.floor(Math.random() * (index + 1))
         const songId = songIds[index]!

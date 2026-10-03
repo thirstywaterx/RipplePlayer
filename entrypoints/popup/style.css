@@ -107,7 +107,7 @@ a:-webkit-any-link {
   /* 去除下划线 */
 }
 
-#marquee.is-overflowing {
+.marquee-overflow.is-overflowing {
   -webkit-mask-image: linear-gradient(to right,
       rgba(26, 26, 26, 0) 0%,
       rgba(26, 26, 26, 1) 10px,

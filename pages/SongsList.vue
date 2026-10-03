@@ -4,10 +4,7 @@
     <SubBar :title="playlistInfo?.name"></SubBar>
 
     <div id="list-container">
-      <s-card clickable v-for="item in songs" :key="item.id" @click="storeInfoAndOpenTab(item.id, songs)">
-        <img :src="item.cover" alt="">
-        <p>{{ item.sortName }}</p>
-      </s-card>
+      <SongContainer :songs="songs"></SongContainer>
     </div>
   </div>
 
@@ -19,12 +16,11 @@ import { loadCovers } from '@/utils/cover/get-cover'
 
 import { usePlayQueueStore } from '@/store/play-queue';
 
-import { storeInfoAndOpenTab } from '@/utils/player/open-tab';
-
 import 'ms-icon/keyboard_arrow_left'
 
 import '@/styles/list-container.css'
 import SubBar from '@/components/SubBar.vue'
+import SongContainer from '@/components/list/SongContainer.vue';
 
 const playQueueStore = usePlayQueueStore()
 const route = useRoute()

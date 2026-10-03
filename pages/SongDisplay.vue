@@ -20,12 +20,10 @@
         <div id="main-info">
             <LyricsDisplay v-if="isLyricsShowed"></LyricsDisplay>
             <img :src="String(playInfoStore.songInfo.cover)" id="cover" v-if="!isLyricsShowed">
-            <Vue3Marquee id="marquee" :key="playInfoStore.songInfo.title"
-                :class="{ 'is-overflowing': isMarqueeOverflowing }" :animate-on-overflow-only="true" :clone="true"
-                :pause-on-hover="true" @on-overflow-detected="isMarqueeOverflowing = true"
-                @on-overflow-cleared="isMarqueeOverflowing = false">
+            <OverflowMarquee id="marquee" :key="playInfoStore.songInfo.title"
+                :animate-on-overflow-only="true" :clone="true" :pause-on-hover="true">
                 <h1>{{ playInfoStore.songInfo.title }}</h1>
-            </Vue3Marquee>
+            </OverflowMarquee>
         </div>
 
         <div id="play-control">
@@ -72,6 +70,7 @@ import { sendToPlayer } from '@/utils/playback';
 import { usePlayInfoStore } from '@/store/now-playing';
 import { usePlayQueueStore } from '@/store/play-queue';
 import { useUIStatusStore } from '@/store/ui-status';
+import OverflowMarquee from '@/components/OverflowMarquee.vue'
 
 import { updateSliderValue } from '@/utils/cal-percent';
 import { loadCover } from '@/utils/cover/cover-cache';
@@ -85,8 +84,6 @@ const playQueueStore = usePlayQueueStore()
 const progressValue = ref<number>(0)
 let isSeeking = false
 let playRequestId = 0
-const isMarqueeOverflowing = ref<boolean>(false)
-
 const isLyricsShowed = ref<boolean>(false)
 
 import 'ms-icon/pause'

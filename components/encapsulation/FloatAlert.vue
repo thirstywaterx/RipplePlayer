@@ -64,6 +64,7 @@ setTimeout(()=> close(),3000)
   animation: appear 0.2s ease-in-out forwards;
   opacity: 0;
   word-break: break-all;
+  z-index: 102;
 }
 
 
