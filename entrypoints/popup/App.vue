@@ -12,14 +12,18 @@ import Topbar from '@/components/Topbar.vue'
 import MusicTab from '@/components/MusicTab.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { createScheme } from 'sober/theme';
+import { getColorSync } from 'colorthief';
+import { usePlayInfoStore } from '@/store/now-playing';
 
 const route = useRoute()
 const router = useRouter()
+const playInfoStore = usePlayInfoStore()
 
 const spage = useTemplateRef<HTMLElement | null>('spage')
+let themeRequestId = 0
 
 onMounted(async () => {
-  const scheme = await createScheme("#960028")
+  const scheme = await createScheme("#4287f5")
 
   if (spage.value) {
     scheme.apply(spage.value)

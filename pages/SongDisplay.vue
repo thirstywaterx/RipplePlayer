@@ -8,20 +8,37 @@
                 <s-icon-button type="checkbox" variant="outlined" @click="isLyricsShowed = !isLyricsShowed">
                     <s-icon><ms-icon name="lyrics"></ms-icon></s-icon>
                 </s-icon-button>
-                <s-icon-button>
+                <s-icon-button @click="downloadSong()">
                     <s-icon><ms-icon name="download"></ms-icon></s-icon>
                 </s-icon-button>
+
                 <s-icon-button>
-                    <s-icon><ms-icon name="info"></ms-icon></s-icon>
+                    <s-icon>
+                        <ms-icon name="info"></ms-icon>
+                    </s-icon>
+                    <s-dialog attached>
+                        <div slot="title">Song Info</div>
+                        <div slot="text">
+                            <div class="info-table" v-for="item in infoDialogTable" :key="item.key">
+                                <div class="texts">
+                                    <p>{{ item.title }}</p>
+                                    <p>{{ item.content }}</p>
+                                </div>
+                                <s-divider></s-divider>
+                            </div>
+                        </div>
+                        <s-button slot="action" variant="text">Got It</s-button>
+                    </s-dialog>
                 </s-icon-button>
+
             </div>
         </div>
 
         <div id="main-info">
             <LyricsDisplay v-if="isLyricsShowed"></LyricsDisplay>
             <img :src="String(playInfoStore.songInfo.cover)" id="cover" v-if="!isLyricsShowed">
-            <OverflowMarquee id="marquee" :key="playInfoStore.songInfo.title"
-                :animate-on-overflow-only="true" :clone="true" :pause-on-hover="true">
+            <OverflowMarquee id="marquee" :key="playInfoStore.songInfo.title" :animate-on-overflow-only="true"
+                :clone="true" :pause-on-hover="true">
                 <h1>{{ playInfoStore.songInfo.title }}</h1>
             </OverflowMarquee>
         </div>
@@ -76,6 +93,7 @@ import { updateSliderValue } from '@/utils/cal-percent';
 import { loadCover } from '@/utils/cover/cover-cache';
 
 import { playMusic, nextSong, previousSong, changeRandomStatus, changeRepeatMode, changePlayStatus } from '@/utils/player/controller';
+import { downloadSong } from '@/utils/player/download';
 
 const uiStatusStore = useUIStatusStore()
 const playInfoStore = usePlayInfoStore()
@@ -198,6 +216,80 @@ const repeatIcon = computed(() => playQueueStore.isUIActive.repeatMode === 'one'
 function closeTab() {
     uiStatusStore.isMusicTabSlideIn = false
 }
+
+const subsonicFieldLabels: Record<string, string> = {
+    id: 'ID',
+    parent: 'Parent ID',
+    isDir: 'Is Directory',
+    title: 'Title',
+    album: 'Album',
+    artist: 'Artist',
+    track: 'Track',
+    year: 'Year',
+    genre: 'Genre',
+    coverArt: 'Cover Art ID',
+    size: 'File Size (bytes)',
+    contentType: 'Content Type',
+    suffix: 'File Extension',
+    duration: 'Duration (seconds)',
+    bitRate: 'Bit Rate (kbps)',
+    path: 'File Path',
+    playCount: 'Play Count',
+    discNumber: 'Disc Number',
+    created: 'Date Added',
+    albumId: 'Album ID',
+    artistId: 'Artist ID',
+    type: 'Type',
+    userRating: 'Your Rating',
+    averageRating: 'Average Rating',
+    starred: 'Starred',
+    albumArtist: 'Album Artist',
+    musicBrainzId: 'MusicBrainz ID',
+    channels: 'Audio Channels',
+    samplingRate: 'Sample Rate (Hz)',
+    bitDepth: 'Bit Depth',
+    bpm: 'BPM',
+    comment: 'Comment',
+    sortName: 'Sort Name',
+    displayArtist: 'Display Artist',
+    compilation: 'Compilation',
+    mediaType: 'Media Type',
+    artists: 'Artists',
+    albumArtists: 'Album Artists',
+}
+
+function formatInfoValue(value: unknown): string {
+    if (Array.isArray(value)) {
+        return value.map(formatInfoValue).filter(Boolean).join(', ')
+    }
+
+    if (value !== null && typeof value === 'object') {
+        if ('name' in value) return formatInfoValue(value.name)
+        return Object.entries(value)
+            .map(([key, nestedValue]) => {
+                const label = key
+                    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+                    .replace(/^./, character => character.toUpperCase())
+                const content = formatInfoValue(nestedValue)
+                return content ? `${label}: ${content}` : ''
+            })
+            .filter(Boolean)
+            .join(', ')
+    }
+
+    return value === null || value === undefined ? '' : String(value)
+}
+
+const infoDialogTable = computed(() => Object.entries(playInfoStore.songInfo)
+    .filter(([key, value]) => key !== 'cover' && value !== null && value !== undefined && value !== '')
+    .map(([key, value]) => ({
+        key,
+        title: subsonicFieldLabels[key] ?? key
+            .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+            .replace(/^./, character => character.toUpperCase()),
+        content: formatInfoValue(value),
+    }))
+    .filter(item => item.content !== ''))
 </script>
 
 <style scoped>
@@ -261,5 +353,35 @@ s-slider {
     inset: 0;
     width: 80vw;
     height: 32px;
+}
+
+.info-table {
+    width: 100%;
+    display: flex;
+    overflow-wrap: anywhere;
+    flex-direction: column;
+}
+
+.info-table p:first-child {
+    flex: 0 0 40%;
+}
+
+.info-table p:last-child {
+    min-width: 0;
+}
+
+s-dialog div {
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+s-dialog .texts {
+    display: flex;
+    gap: 8px;
+}
+
+s-dialog s-divider {
+    width: 100vw;
 }
 </style>

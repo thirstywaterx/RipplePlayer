@@ -26,7 +26,8 @@
             </s-button>
         </div>
 
-        <WheelableLargeCoverContainer type="album" :artistsOrAlbumsData="artistInfo?.album ?? []" v-if="(artistInfo?.album?.length ?? 0) > 0">
+        <WheelableLargeCoverContainer type="album" titleText="Albums" coverKey="cover"
+            :artistsOrAlbumsData="artistInfo?.album ?? []" v-if="(artistInfo?.album?.length ?? 0) > 0">
         </WheelableLargeCoverContainer>
     </div>
 </template>

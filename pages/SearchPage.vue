@@ -5,10 +5,10 @@
         <s-empty v-if="!isSearched">Nothing Here</s-empty>
 
         <div id="search-result" v-if="isSearched">
-            <WheelableLargeCoverContainer type="artist" :artistsOrAlbumsData="searchResult.artist"  v-if="(searchResult.artist?.length ?? 0) > 0">
+            <WheelableLargeCoverContainer type="artist" titleText="Artists" coverKey="artistImageUrl" :artistsOrAlbumsData="searchResult.artist"  v-if="(searchResult.artist?.length ?? 0) > 0">
             </WheelableLargeCoverContainer>
 
-            <WheelableLargeCoverContainer type="album" :artistsOrAlbumsData="searchResult.album"  v-if="(searchResult.album?.length ?? 0) > 0">
+            <WheelableLargeCoverContainer type="album"  titleText="Albums"  coverKey="cover" :artistsOrAlbumsData="searchResult.album"  v-if="(searchResult.album?.length ?? 0) > 0">
             </WheelableLargeCoverContainer>
 
             <div id="list-container">
@@ -29,21 +29,18 @@ import SongContainer from '@/components/list/SongContainer.vue';
 import WheelableLargeCoverContainer from '@/components/list/WheelableLargeCoverContainer.vue';
 
 import { usePlayQueueStore } from '@/store/play-queue';
-
-import '@/styles/list-container.css'
+import { useSearchStore } from '@/store/search';
+import { storeToRefs } from 'pinia';
 
 
 const playQueueStore = usePlayQueueStore()
+const searchStore = useSearchStore()
+const { searchText, searchResult, isSearched } = storeToRefs(searchStore)
 
 
 onMounted(() => {
     playQueueStore.beforeLevel = "empty"
 })
-
-let searchText = ref<string>("")
-const searchResult = ref<any>([])
-
-let isSearched = ref<boolean>(false)
 
 async function search() {
     const infoResponse = await authAndUseAPI("search2", ["query", searchText.value])

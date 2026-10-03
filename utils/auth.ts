@@ -52,6 +52,7 @@ async function authAndUseAPI(apiName: string, ...args: [string, string | null][]
         const response = await fetch(requestURL as URL)
         const contentType = response.headers.get("content-type") ?? ""
         const isBinaryResponse = apiName === "getCoverArt"
+            || apiName === "download"
             || apiName === "stream"
             || contentType.startsWith("image/")
             || contentType.startsWith("audio/")

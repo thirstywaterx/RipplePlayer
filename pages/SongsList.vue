@@ -18,7 +18,6 @@ import { usePlayQueueStore } from '@/store/play-queue';
 
 import 'ms-icon/keyboard_arrow_left'
 
-import '@/styles/list-container.css'
 import SubBar from '@/components/SubBar.vue'
 import SongContainer from '@/components/list/SongContainer.vue';
 

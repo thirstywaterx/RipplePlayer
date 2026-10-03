@@ -14,15 +14,13 @@ import { useRouter } from 'vue-router';
 const router = useRouter()
 const defaultArtistImage = '/default.svg'
 
-const props = defineProps(["type", "artistsOrAlbumsData"])
-const titleText = computed(() => props.type === "artist" ? "Artists" : "Albums")
-const coverKey = computed(() => props.type === "artist" ? "artistImageUrl" : "cover")
+const props = defineProps(["titleText", "coverKey", "type", "artistsOrAlbumsData"])
 
 type routeType = "artist" | "album" | "song"
 
 function handleArtistImageError(event: Event, item: any) {
-    if (item[coverKey.value] !== defaultArtistImage) {
-        item[coverKey.value] = defaultArtistImage
+    if (item[props.coverKey.value] !== defaultArtistImage) {
+        item[props.coverKey.value] = defaultArtistImage
     }
 }
 
