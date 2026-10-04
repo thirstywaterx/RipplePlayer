@@ -1,6 +1,5 @@
 import { defineConfig } from 'wxt';
 
-// See https://wxt.dev/api/config.html
 export default defineConfig({
   modules: ['@wxt-dev/module-vue'],
   vue: {
@@ -14,5 +13,8 @@ export default defineConfig({
   },
   manifest: {
     permissions: ['offscreen','storage'],
+    icons: {
+      128: '/icon.png',
+    },
   },
 });

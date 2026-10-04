@@ -2,7 +2,7 @@
   "name": "ripple-player",
   "description": "A chrome extention for Subsonic, which based on MD3 design",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "wxt",

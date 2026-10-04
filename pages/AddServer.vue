@@ -46,10 +46,6 @@ import AddServerDIalog from '@/components/encapsulation/AddServerDIalog.vue'
 
 const serverInfoStore = useServerInfoStore()
 
-if (window.localStorage.getItem('username')) {
-  // router.replace('/home')
-}
-
 const name = ref<string>('')
 const rawURL = ref<string>('')
 const username = ref<string>('')
