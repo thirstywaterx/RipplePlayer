@@ -20,5 +20,13 @@ export default defineConfig({
       'https://*/*',
       'http://*/*'
     ],
+    browser_specific_settings: {
+      gecko: {
+        id: 'ripple-player@waterx.top',
+        data_collection_permissions: {
+          required: ['none'],
+        },
+      },
+    },
   },
 });
