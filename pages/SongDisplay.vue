@@ -61,7 +61,7 @@
                     <s-icon><ms-icon name="skip_previous"></ms-icon></s-icon>
                 </s-icon-button>
 
-                <s-icon-button variant="filled" id="play-button" @click="changePlayStatus(playRequestId)">
+                <s-icon-button variant="filled" id="play-button" @click="changePlayStatus()">
                     <s-icon><ms-icon :key="currentPlayIcon" :name="currentPlayIcon"></ms-icon></s-icon>
                 </s-icon-button>
 
@@ -101,7 +101,9 @@ const playQueueStore = usePlayQueueStore()
 
 const progressValue = ref<number>(0)
 let isSeeking = false
-let playRequestId = 0
+let pendingOffscreenTrackId: unknown = null
+let activePlaybackId: number | null = null
+let lastProgressSequence = -1
 const isLyricsShowed = ref<boolean>(false)
 
 import 'ms-icon/pause'
@@ -118,7 +120,23 @@ import 'ms-icon/lyrics'
 import LyricsDisplay from '@/components/LyricsDisplay.vue';
 
 //get the current playback state from the offscreen player and apply it to the UI
+function adoptPlaybackSession(playbackId: unknown) {
+    if (typeof playbackId !== 'number') return true
+    if (activePlaybackId !== null && playbackId < activePlaybackId) return false
+    if (playbackId > (activePlaybackId ?? -1)) {
+        activePlaybackId = playbackId
+        lastProgressSequence = -1
+    }
+    return true
+}
+
 function applyPlaybackState(state: any) {
+    if (!adoptPlaybackSession(state.playbackId)) return
+    if (typeof state.sequence === 'number') {
+        if (state.sequence <= lastProgressSequence) return
+        lastProgressSequence = state.sequence
+    }
+
     playInfoStore.currentTime = state.currentTime ?? 0
     playInfoStore.duration = state.duration ?? 0
     playInfoStore.isPlaying = state.isPlaying ?? playInfoStore.isPlaying
@@ -130,6 +148,10 @@ function applyPlaybackState(state: any) {
 
 watch(() => playInfoStore.songInfo.id, (songId) => {
     if (songId == null) return
+    if (pendingOffscreenTrackId === songId) {
+        pendingOffscreenTrackId = null
+        return
+    }
 
     if (!playInfoStore.songInfo.cover || String(playInfoStore.songInfo.cover).startsWith('blob:')) {
         void loadCover(playInfoStore.songInfo)
@@ -139,7 +161,7 @@ watch(() => playInfoStore.songInfo.id, (songId) => {
     playInfoStore.duration = 0
     progressValue.value = 0
     isSeeking = false
-    void playMusic(playRequestId)
+    void playMusic()
 })
 
 function previewProgress() {
@@ -162,20 +184,26 @@ function advanceSong() {
     if (playInfoStore.songInfo.id === currentSongId) {
         playInfoStore.currentTime = 0
         progressValue.value = 0
-        void playMusic(playRequestId)
+        void playMusic()
     }
     return true
 }
 
 function handlePlaybackMessage(message: any) {
-    if (message.action === 'MUSIC_ENDED') {
-        if (playQueueStore.isUIActive.repeatMode === 'one') {
-            playInfoStore.currentTime = 0
-            progressValue.value = 0
-            void playMusic(playRequestId)
-        } else if (!advanceSong()) {
-            playInfoStore.isPlaying = false
+    if (message.target === 'popup-player' && message.action === 'PLAYER_TRACK_CHANGED') {
+        if (!adoptPlaybackSession(message.playbackId)) return
+        if (typeof message.sequence === 'number') {
+            lastProgressSequence = Math.max(lastProgressSequence, message.sequence)
         }
+        const songInfo = message.songInfo
+        if (songInfo?.id != null && playInfoStore.songInfo.id !== songInfo.id) {
+            pendingOffscreenTrackId = songInfo.id
+            playInfoStore.songInfo = songInfo
+        }
+        playInfoStore.currentTime = 0
+        playInfoStore.duration = 0
+        playInfoStore.isPlaying = true
+        progressValue.value = 0
         return
     }
 
@@ -193,15 +221,12 @@ onMounted(async () => {
 
     const response = await sendToPlayer('SEEK', { position: playInfoStore.currentTime })
     if (response?.status === 'unavailable') {
-        await playMusic(playRequestId)
+        await playMusic()
         return
     }
 
     if (response?.status === 'seeked') {
-        playInfoStore.currentTime = response.currentTime ?? playInfoStore.currentTime
-        playInfoStore.duration = response.duration ?? playInfoStore.duration
-        playInfoStore.isPlaying = response.isPlaying ?? playInfoStore.isPlaying
-        progressValue.value = updateSliderValue()
+        applyPlaybackState(response)
     }
 })
 

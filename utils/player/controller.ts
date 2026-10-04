@@ -1,20 +1,40 @@
 import { usePlayInfoStore } from '@/store/now-playing';
 import { usePlayQueueStore } from '@/store/play-queue';
 
-async function playMusic(playRequestId: number) {
+let latestPlayRequestId = 0
+
+async function playMusic() {
     const playInfoStore = usePlayInfoStore()
+    const playQueueStore = usePlayQueueStore()
     const songId = playInfoStore.songInfo.id
-    const requestId = ++playRequestId
+    const requestId = ++latestPlayRequestId
     const position = playInfoStore.currentTime
     const response = await authAndUseAPI("stream", ["id", String(songId)])
 
-    if (requestId !== playRequestId || playInfoStore.songInfo.id !== songId) return
+    const isCurrentRequest = () =>
+        requestId === latestPlayRequestId && playInfoStore.songInfo.id === songId
+    if (!isCurrentRequest()) return
 
     await sendToPlayer('PLAY', {
         url: response?.data,
         position,
-    })
-    playInfoStore.isPlaying = true
+        songInfo: { ...playInfoStore.songInfo },
+        songsQueue: playQueueStore.songsQueue.map(song => ({ ...song })),
+        shuffleRemaining: [...playQueueStore.shuffleRemaining],
+        isUIActive: { ...playQueueStore.isUIActive },
+    }, isCurrentRequest)
+    if (isCurrentRequest()) playInfoStore.isPlaying = true
+}
+
+function syncQueueContext() {
+    const playQueueStore = usePlayQueueStore()
+    void browser.runtime.sendMessage({
+        target: 'offscreen-player',
+        action: 'SYNC_QUEUE_CONTEXT',
+        songsQueue: playQueueStore.songsQueue.map(song => ({ ...song })),
+        shuffleRemaining: [...playQueueStore.shuffleRemaining],
+        isUIActive: { ...playQueueStore.isUIActive },
+    }).catch(() => {})
 }
 
 function getNowIndex() {
@@ -44,7 +64,7 @@ function refreshShuffleRemaining() {
         : []
 }
 
-async function changePlayStatus(playRequestId: number) {
+async function changePlayStatus() {
     const playInfoStore = usePlayInfoStore()
 
     if (playInfoStore.isPlaying) {
@@ -56,14 +76,14 @@ async function changePlayStatus(playRequestId: number) {
     if (playInfoStore.duration > 0) {
         const response = await sendToPlayer('RESUME')
         if (response?.status === 'unavailable') {
-            await playMusic(playRequestId)
+            await playMusic()
             return
         }
         playInfoStore.isPlaying = true
         return
     }
 
-    await playMusic(playRequestId)
+    await playMusic()
 }
 
 function nextSong() {
@@ -125,6 +145,7 @@ function changeRandomStatus() {
     const playQueueStore = usePlayQueueStore()
     playQueueStore.isUIActive.isRandomActive = !playQueueStore.isUIActive.isRandomActive
     refreshShuffleRemaining()
+    syncQueueContext()
 }
 
 function changeRepeatMode() {
@@ -132,6 +153,7 @@ function changeRepeatMode() {
     const modes = ["off", "all", "one"] as const
     const currentIndex = modes.indexOf(playQueueStore.isUIActive.repeatMode)
     playQueueStore.isUIActive.repeatMode = modes[(currentIndex + 1) % modes.length]!
+    syncQueueContext()
 }
 
 export {
