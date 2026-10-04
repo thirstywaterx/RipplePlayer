@@ -1,0 +1,31 @@
+diff --git a/node_modules/sober/dist/core/utils/popup.js b/node_modules/sober/dist/core/utils/popup.js
+index a569019..1f66319 100644
+--- a/node_modules/sober/dist/core/utils/popup.js
++++ b/node_modules/sober/dist/core/utils/popup.js
+@@ -76,6 +76,7 @@ class Popup {
+   resizer;
+   animete;
+   closeCallback;
++  resizeCallback;
+   constructor(root, popover, container) {
+     this.root = root;
+     this.popover = popover;
+@@ -112,7 +113,8 @@ class Popup {
+       this.onUpdated?.();
+     };
+     this.closeCallback = () => this.close();
+-    window.addEventListener("resize", this.closeCallback);
++    this.resizeCallback = () => this.resizer?.onChange();
++    window.addEventListener("resize", this.resizeCallback);
+     this.resizer.onChange();
+     this.resizer.run();
+     this.container.onpointerdown = (e) => e.stopPropagation();
+@@ -124,7 +126,7 @@ class Popup {
+     if (!this.resizer)
+       return;
+     this.resizer.stop();
+-    window.removeEventListener("resize", this.closeCallback);
++    window.removeEventListener("resize", this.resizeCallback);
+     this.onClose?.();
+     if (this.animete)
+       await this.container.animate({ opacity: [1, 0], transform: ["scale(1)", "scale(.8)"] }, this.animete).finished;

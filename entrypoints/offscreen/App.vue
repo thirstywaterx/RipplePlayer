@@ -79,6 +79,17 @@ function handlePlayerMessage(message: any, sender: any, sendResponse: (response?
         }
         break;
 
+      case 'STOP':
+        if (timerId) clearInterval(timerId);
+        timerId = null;
+        Howler.stop();
+        if (currentSound.value) {
+          currentSound.value.unload();
+          currentSound.value = null;
+        }
+        sendResponse({ status: 'stopped' });
+        break;
+
       case 'SEEK': {
         const sound = currentSound.value;
         if (!sound) {

@@ -1,6 +1,6 @@
 <template>
   <s-page ref="spage" :style="{ paddingTop: isTopbarShowed ? '50px' : '0' }">
-    <Topbar></Topbar>
+    <Topbar v-if="isTopbarShowed"></Topbar>
     <MusicTab></MusicTab>
     <RouterView></RouterView>
   </s-page>
@@ -10,13 +10,11 @@
 import 'sober'
 import Topbar from '@/components/Topbar.vue'
 import MusicTab from '@/components/MusicTab.vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { createScheme } from 'sober/theme';
-import { getColorSync } from 'colorthief';
 import { usePlayInfoStore } from '@/store/now-playing';
 
 const route = useRoute()
-const router = useRouter()
 const playInfoStore = usePlayInfoStore()
 
 const spage = useTemplateRef<HTMLElement | null>('spage')
@@ -29,17 +27,10 @@ onMounted(async () => {
     scheme.apply(spage.value)
   }
 
-  if (!window.localStorage.getItem("username") && route.path !== '/initialize') {
-    router.replace('/initialize')
-  }
-
-  if (window.localStorage.getItem("username") && route.path === '/initialize') {
-    router.replace('/home')
-  }
 })
 
 const isTopbarShowed = computed(() => {
-  return route.name !== "initialize"
+  return route.name !== "addserver"
 })
 </script>
 
