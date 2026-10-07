@@ -12,9 +12,9 @@ export default defineConfig({
     },
   },
   manifest: {
-    permissions: ['offscreen', 'storage'],
+    permissions: ['offscreen'],
     icons: {
-      128: '/icon.png',
+      128: 'icon.png',
     },
     optional_host_permissions: [
       'https://*/*',
